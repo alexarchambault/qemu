@@ -1,0 +1,16 @@
+diff --git a/meson.build b/meson.build
+index d20cec4..89342e9 100644
+--- a/meson.build
++++ b/meson.build
+@@ -101,6 +101,11 @@ endif
+ cargs = [
+   '-DG_LOG_DOMAIN="Slirp"',
+   '-DBUILDING_LIBSLIRP',
++  '-DGLIB_STATIC_COMPILATION',
++  '-DGOBJECT_STATIC_COMPILATION',
++  '-DGIO_STATIC_COMPILATION',
++  '-DGMODULE_STATIC_COMPILATION',
++  '-DGI_STATIC_COMPILATION'
+ ]
+
+ if cc.check_header('valgrind/valgrind.h')

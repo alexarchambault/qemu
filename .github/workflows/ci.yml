@@ -1,0 +1,293 @@
+name: CI
+on:
+  push:
+    branches:
+    - static-binaries
+    tags:
+    - "v*"
+  pull_request:
+
+jobs:
+  build-linux:
+    strategy:
+      fail-fast: false
+      matrix:
+        OS: ["ubuntu-latest"]
+        OSSHORT: ["linux-amd64"]
+        include:
+          - OS: "ubuntu-24.04-arm"
+            OSSHORT: "linux-aarch64"
+    runs-on: ${{ matrix.OS }}
+    name: Build binaries
+    steps:
+    - uses: actions/checkout@v4
+    - name: Install stuff
+      shell: bash
+      run: .github/scripts/prepare.sh
+    - name: configure
+      shell: bash
+      run: .github/scripts/configure.sh
+    - name: make
+      shell: bash
+      run: .github/scripts/make.sh
+    - name: Create archive
+      shell: bash
+      run: .github/scripts/make-archive.sh qemu-${{ matrix.OSSHORT }}
+    - uses: actions/upload-artifact@v4
+      with:
+        name: qemu-${{ matrix.OSSHORT }}
+        path: qemu-${{ matrix.OSSHORT }}.tar.gz
+        if-no-files-found: error
+        retention-days: 5
+
+  build-macos:
+    strategy:
+      fail-fast: false
+      matrix:
+        OS: ["macos-15"]
+        OSSHORT: ["macos-sequoia-aarch64"]
+        include:
+          - OS: "macos-14"
+            OSSHORT: "macos-sonoma-aarch64"
+          - OS: "macos-13"
+            OSSHORT: "macos-ventura-amd64"
+    runs-on: ${{ matrix.OS }}
+    name: Build binaries
+    steps:
+    - uses: actions/checkout@v4
+    - name: Install stuff
+      shell: bash
+      run: .github/scripts/prepare.sh
+    - name: configure
+      shell: bash
+      run: .github/scripts/configure.sh
+    - name: make
+      shell: bash
+      run: .github/scripts/make.sh
+    - name: Create archive
+      shell: bash
+      run: .github/scripts/make-archive.sh qemu-${{ matrix.OSSHORT }}
+    - uses: actions/upload-artifact@v4
+      with:
+        name: qemu-${{ matrix.OSSHORT }}
+        path: qemu-${{ matrix.OSSHORT }}.tar.gz
+        if-no-files-found: error
+        retention-days: 5
+
+  build-windows:
+    runs-on: "windows-2022"
+    name: Build binaries (windows-2022)
+    steps:
+    - uses: msys2/setup-msys2@v2
+      name: Setup msys2
+      with:
+        update: true
+        install: >-
+          curl
+          git
+          base-devel
+          mingw-w64-x86_64-toolchain
+          python
+          ninja
+          mingw-w64-x86_64-glib2
+          python-setuptools
+          unzip
+    - uses: actions/checkout@v4
+    - name: Install stuff
+      shell: msys2 {0}
+      run: .github/scripts/prepare.sh
+    - name: configure
+      shell: msys2 {0}
+      run: .github/scripts/configure.sh
+    - uses: actions/upload-artifact@v4
+      with:
+        name: build-ninja-windows-amd64
+        path: build/build.ninja
+        if-no-files-found: error
+        retention-days: 5
+    - name: make
+      shell: msys2 {0}
+      run: make
+    - name: Create archive
+      shell: msys2 {0}
+      run: .github/scripts/make-archive.sh qemu-windows-amd64
+    - uses: actions/upload-artifact@v4
+      with:
+        name: qemu-windows-amd64
+        path: qemu-windows-amd64.tar.gz
+        if-no-files-found: error
+        retention-days: 5
+
+  build-windows-cross:
+    runs-on: ubuntu-latest
+    name: Build binaries (mingw64 cross)
+    steps:
+    - uses: actions/checkout@v4
+    - name: Install stuff
+      shell: bash
+      run: .github/scripts/prepare.sh
+      env:
+        WINDOWS_CROSS: true
+    - name: configure
+      shell: bash
+      run: .github/scripts/configure.sh
+      env:
+        WINDOWS_CROSS: true
+    - name: make
+      shell: bash
+      run: .github/scripts/make.sh
+      env:
+        WINDOWS_CROSS: true
+    - name: Create archive
+      shell: bash
+      run: .github/scripts/make-archive.sh qemu-windows-amd64-cross
+      env:
+        WINDOWS_CROSS: true
+    - uses: actions/upload-artifact@v4
+      with:
+        name: qemu-windows-amd64-cross
+        path: qemu-windows-amd64-cross.tar.gz
+        if-no-files-found: error
+        retention-days: 5
+
+  check-linux:
+    strategy:
+      fail-fast: false
+      matrix:
+        OS: ["ubuntu-latest"]
+        OSSHORT: ["linux-amd64"]
+        include:
+          - OS: "ubuntu-24.04-arm"
+            OSSHORT: "linux-aarch64"
+    runs-on: ${{ matrix.OS }}
+    needs: build-linux
+    steps:
+    - uses: actions/download-artifact@v4
+      with:
+        name: qemu-${{ matrix.OSSHORT }}
+    - run: tar -zxvf qemu-${{ matrix.OSSHORT }}.tar.gz
+    - run: ldd usr/local/bin/qemu-system-aarch64
+    - run: ldd usr/local/bin/qemu-system-x86_64
+    - run: usr/local/bin/qemu-system-aarch64 --help
+    - run: usr/local/bin/qemu-system-x86_64 --help
+    - name: Release
+      uses: softprops/action-gh-release@v2
+      with:
+        files: qemu-${{ matrix.OSSHORT }}.tar.gz
+        tag_name: nightly
+
+  check-macos:
+    strategy:
+      fail-fast: false
+      matrix:
+        OS: ["macos-15"]
+        OSSHORT: ["macos-sequoia-aarch64"]
+        include:
+          - OS: "macos-14"
+            OSSHORT: "macos-sonoma-aarch64"
+          - OS: "macos-13"
+            OSSHORT: "macos-ventura-amd64"
+    runs-on: ${{ matrix.OS }}
+    needs: build-macos
+    steps:
+    - uses: actions/download-artifact@v4
+      with:
+        name: qemu-${{ matrix.OSSHORT }}
+    - run: tar -zxvf qemu-${{ matrix.OSSHORT }}.tar.gz
+    - run: otool -L usr/local/bin/qemu-system-aarch64-unsigned
+    - run: otool -L usr/local/bin/qemu-system-x86_64-unsigned
+    - run: usr/local/bin/qemu-system-aarch64-unsigned --help
+    - run: usr/local/bin/qemu-system-x86_64-unsigned --help
+    - name: Release
+      uses: softprops/action-gh-release@v2
+      with:
+        files: qemu-${{ matrix.OSSHORT }}.tar.gz
+        tag_name: nightly
+
+  check-windows:
+    runs-on: windows-2022
+    needs: build-windows
+    steps:
+    - uses: msys2/setup-msys2@v2
+      name: Setup msys2
+      with:
+        update: true
+        install: >-
+          curl
+          git
+          base-devel
+          unzip
+    - uses: actions/download-artifact@v4
+      with:
+        name: qemu-windows-amd64
+    - run: tar -zxvf qemu-windows-amd64.tar.gz
+      shell: msys2 {0}
+    - name: Check qemu-system-aarch64.exe
+      shell: cmd
+      run: |
+        call "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe" -latest -property installationPath > vs_path.txt
+        set /p VS_PATH=<vs_path.txt
+        call "%VS_PATH%\VC\Auxiliary\Build\vcvarsall.bat" x64
+        echo VS Environment Set
+        dumpbin /dependents qemu\qemu-system-aarch64.exe
+    - name: Check qemu-system-x86_64.exe
+      shell: cmd
+      run: |
+        call "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe" -latest -property installationPath > vs_path.txt
+        set /p VS_PATH=<vs_path.txt
+        call "%VS_PATH%\VC\Auxiliary\Build\vcvarsall.bat" x64
+        echo VS Environment Set
+        dumpbin /dependents qemu\qemu-system-x86_64.exe
+    - run: qemu\qemu-system-aarch64.exe --help
+      shell: cmd
+    - run: qemu\qemu-system-x86_64.exe --help
+      shell: cmd
+    - name: Release
+      uses: softprops/action-gh-release@v2
+      with:
+        files: qemu-windows-amd64.tar.gz
+        tag_name: nightly
+
+  check-windows-cross:
+    runs-on: windows-2022
+    needs: build-windows-cross
+    steps:
+    - uses: msys2/setup-msys2@v2
+      name: Setup msys2
+      with:
+        update: true
+        install: >-
+          curl
+          git
+          base-devel
+          unzip
+    - uses: actions/download-artifact@v4
+      with:
+        name: qemu-windows-amd64-cross
+    - run: tar -zxvf qemu-windows-amd64-cross.tar.gz
+      shell: msys2 {0}
+    - name: Check qemu-system-aarch64.exe
+      shell: cmd
+      run: |
+        call "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe" -latest -property installationPath > vs_path.txt
+        set /p VS_PATH=<vs_path.txt
+        call "%VS_PATH%\VC\Auxiliary\Build\vcvarsall.bat" x64
+        echo VS Environment Set
+        dumpbin /dependents qemu\qemu-system-aarch64.exe
+    - name: Check qemu-system-x86_64.exe
+      shell: cmd
+      run: |
+        call "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe" -latest -property installationPath > vs_path.txt
+        set /p VS_PATH=<vs_path.txt
+        call "%VS_PATH%\VC\Auxiliary\Build\vcvarsall.bat" x64
+        echo VS Environment Set
+        dumpbin /dependents qemu\qemu-system-x86_64.exe
+    - run: qemu\qemu-system-aarch64.exe --help
+      shell: cmd
+    - run: qemu\qemu-system-x86_64.exe --help
+      shell: cmd
+    - name: Release
+      uses: softprops/action-gh-release@v2
+      with:
+        files: qemu-windows-amd64-cross.tar.gz
+        tag_name: nightly
