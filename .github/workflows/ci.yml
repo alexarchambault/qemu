@@ -51,8 +51,6 @@ jobs:
             OSSHORT: "macos-sequoia-aarch64"
           - OS: "macos-14"
             OSSHORT: "macos-sonoma-aarch64"
-          - OS: "macos-13"
-            OSSHORT: "macos-ventura-amd64"
     runs-on: ${{ matrix.OS }}
     name: Build binaries
     steps:
@@ -189,8 +187,6 @@ jobs:
             OSSHORT: "macos-sequoia-aarch64"
           - OS: "macos-14"
             OSSHORT: "macos-sonoma-aarch64"
-          - OS: "macos-13"
-            OSSHORT: "macos-ventura-amd64"
     runs-on: ${{ matrix.OS }}
     needs: build-macos
     steps:
