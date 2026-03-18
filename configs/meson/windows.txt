@@ -3,7 +3,7 @@
 
 [built-in options]
 bindir = ''
-prefix = 'C:/qemu'
+prefix = '/qemu'
 
 [project options]
 qemu_suffix = ''
