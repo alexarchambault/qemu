@@ -44,9 +44,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        OS: ["macos-15"]
-        OSSHORT: ["macos-sequoia-aarch64"]
+        OS: ["macos-26"]
+        OSSHORT: ["macos-tahoe-aarch64"]
         include:
+          - OS: "macos-15"
+            OSSHORT: "macos-sequoia-aarch64"
           - OS: "macos-14"
             OSSHORT: "macos-sonoma-aarch64"
           - OS: "macos-13"
@@ -180,9 +182,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        OS: ["macos-15"]
-        OSSHORT: ["macos-sequoia-aarch64"]
+        OS: ["macos-26"]
+        OSSHORT: ["macos-tahoe-aarch64"]
         include:
+          - OS: "macos-15"
+            OSSHORT: "macos-sequoia-aarch64"
           - OS: "macos-14"
             OSSHORT: "macos-sonoma-aarch64"
           - OS: "macos-13"
