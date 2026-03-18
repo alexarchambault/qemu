@@ -91,6 +91,7 @@ jobs:
           ninja
           mingw-w64-x86_64-glib2
           mingw-w64-x86_64-python-distlib
+          mingw-w64-x86_64-python-pip
           python-setuptools
           unzip
     - uses: actions/checkout@v4
