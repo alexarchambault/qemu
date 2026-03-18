@@ -11,9 +11,11 @@ elif [ "$(expr substr $(uname -s) 1 5 2>/dev/null)" == "Linux" ]; then
   cd -
 elif [ "$(uname)" == "Darwin" ]; then
   brew install ninja libslirp
+  pip3 install --break-system-packages distlib
 elif [[ `uname | grep -E 'CYG*|MSYS*|MING*|UCRT*|ClANG*|GIT*'` ]]; then
   curl -fLO https://repo.msys2.org/mingw/mingw64/mingw-w64-x86_64-libslirp-4.8.0-2-any.pkg.tar.zst
   pacman --noconfirm -U mingw-w64-x86_64-libslirp-4.8.0-2-any.pkg.tar.zst
+  pip install distlib
   echo cd "$MINGW_PREFIX/include"
   cd "$MINGW_PREFIX/include/slirp"
   ls
