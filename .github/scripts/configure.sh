@@ -76,7 +76,7 @@ elif [ "$(uname)" == "Darwin" ]; then
     storage-daemon/qemu-storage-daemon
   )
 elif [[ `uname | grep -E 'CYG*|MSYS*|MING*|UCRT*|CLANG*|GIT*'` ]]; then
-  OS_ARGS+=("${WINDOWS_OS_ARGS[@]}")
+  OS_ARGS+=("${WINDOWS_OS_ARGS[@]}" "--prefix=C:/qemu")
   MOSTLY_STATIC=true
   BINARIES=("${WINDOWS_BINARIES[@]}")
 
