@@ -51,6 +51,12 @@ jobs:
             OSSHORT: "macos-sequoia-aarch64"
           - OS: "macos-14"
             OSSHORT: "macos-sonoma-aarch64"
+          - OS: "macos-26-large"
+            OSSHORT: "macos-tahoe-amd64"
+          - OS: "macos-15-large"
+            OSSHORT: "macos-sequoia-amd64"
+          - OS: "macos-14-large"
+            OSSHORT: "macos-sonoma-amd64"
     runs-on: ${{ matrix.OS }}
     name: Build binaries
     steps:
@@ -189,6 +195,12 @@ jobs:
             OSSHORT: "macos-sequoia-aarch64"
           - OS: "macos-14"
             OSSHORT: "macos-sonoma-aarch64"
+          - OS: "macos-26-large"
+            OSSHORT: "macos-tahoe-amd64"
+          - OS: "macos-15-large"
+            OSSHORT: "macos-sequoia-amd64"
+          - OS: "macos-14-large"
+            OSSHORT: "macos-sonoma-amd64"
     runs-on: ${{ matrix.OS }}
     needs: build-macos
     steps:
