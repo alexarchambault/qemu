@@ -64,7 +64,7 @@ elif [ "$(expr substr $(uname -s) 1 5 2>/dev/null)" == "Linux" ]; then
   USE_DOCKER=true
   DOCKER_IMAGE="alpine-image"
 elif [ "$(uname)" == "Darwin" ]; then
-  OS_ARGS+=("--enable-hvf" "--enable-virtfs")
+  OS_ARGS+=("--enable-hvf" "--enable-virtfs" "--disable-coreaudio")
   MOSTLY_STATIC=true
   BINARIES=(
     qemu-system-aarch64-unsigned
@@ -76,7 +76,7 @@ elif [ "$(uname)" == "Darwin" ]; then
     storage-daemon/qemu-storage-daemon
   )
 elif [[ `uname | grep -E 'CYG*|MSYS*|MING*|UCRT*|CLANG*|GIT*'` ]]; then
-  OS_ARGS+=("${WINDOWS_OS_ARGS[@]}")
+  OS_ARGS+=("${WINDOWS_OS_ARGS[@]}" "--prefix=C:/qemu")
   MOSTLY_STATIC=true
   BINARIES=("${WINDOWS_BINARIES[@]}")
 

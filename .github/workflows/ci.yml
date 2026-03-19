@@ -44,13 +44,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        OS: ["macos-15"]
-        OSSHORT: ["macos-sequoia-aarch64"]
+        OS: ["macos-26"]
+        OSSHORT: ["macos-tahoe-aarch64"]
         include:
+          - OS: "macos-15"
+            OSSHORT: "macos-sequoia-aarch64"
           - OS: "macos-14"
             OSSHORT: "macos-sonoma-aarch64"
-          - OS: "macos-13"
-            OSSHORT: "macos-ventura-amd64"
+          - OS: "macos-26-intel"
+            OSSHORT: "macos-tahoe-amd64"
+          - OS: "macos-15-intel"
+            OSSHORT: "macos-sequoia-amd64"
     runs-on: ${{ matrix.OS }}
     name: Build binaries
     steps:
@@ -90,6 +94,8 @@ jobs:
           python
           ninja
           mingw-w64-x86_64-glib2
+          mingw-w64-x86_64-python-distlib
+          mingw-w64-x86_64-python-pip
           python-setuptools
           unzip
     - uses: actions/checkout@v4
@@ -180,13 +186,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        OS: ["macos-15"]
-        OSSHORT: ["macos-sequoia-aarch64"]
+        OS: ["macos-26"]
+        OSSHORT: ["macos-tahoe-aarch64"]
         include:
+          - OS: "macos-15"
+            OSSHORT: "macos-sequoia-aarch64"
           - OS: "macos-14"
             OSSHORT: "macos-sonoma-aarch64"
-          - OS: "macos-13"
-            OSSHORT: "macos-ventura-amd64"
+          - OS: "macos-26-intel"
+            OSSHORT: "macos-tahoe-amd64"
+          - OS: "macos-15-intel"
+            OSSHORT: "macos-sequoia-amd64"
     runs-on: ${{ matrix.OS }}
     needs: build-macos
     steps:
