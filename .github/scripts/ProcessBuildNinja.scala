@@ -174,7 +174,6 @@ object ProcessBuildNinja {
     val (cross, targets) =
       if (args.headOption.contains("--cross")) (true, args.drop(1).toSeq)
       else (false, args.toSeq)
-      args.toSeq
     if (targets.isEmpty)
       sys.error("No targets passed as argument")
 
