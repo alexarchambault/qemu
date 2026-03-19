@@ -680,9 +680,29 @@ if host_os != 'openbsd' and \
     hardening_flags += '-fzero-call-used-regs=used-gpr'
 endif
 
-qemu_common_flags += cc.get_supported_arguments(hardening_flags)
+# Snapshot of qemu_common_flags before adding C-tested hardening flags so ObjC
+# can be given its own compiler-tested set below.
+qemu_common_flags_pre_hardening = qemu_common_flags
 
-add_global_arguments(qemu_common_flags, native: false, language: all_languages)
+c_hardening_flags = cc.get_supported_arguments(hardening_flags)
+qemu_common_flags += c_hardening_flags
+
+if 'objc' in all_languages
+  # Some clang versions (e.g. clang-15 on macOS 14) accept hardening flags for
+  # C but reject them for Objective-C.  Test separately with the ObjC compiler
+  # so only flags supported by both compilers are applied to ObjC files.
+  non_objc_languages = []
+  foreach lang : all_languages
+    if lang != 'objc'
+      non_objc_languages += lang
+    endif
+  endforeach
+  add_global_arguments(qemu_common_flags, native: false, language: non_objc_languages)
+  add_global_arguments(qemu_common_flags_pre_hardening + objc.get_supported_arguments(hardening_flags),
+                       native: false, language: ['objc'])
+else
+  add_global_arguments(qemu_common_flags, native: false, language: all_languages)
+endif
 add_global_link_arguments(qemu_ldflags, native: false, language: all_languages)
 
 # Collect warning flags we want to set, sorted alphabetically
