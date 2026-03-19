@@ -8,14 +8,21 @@ MOSTLY_STATIC=false
 SCALA_CLI=(.github/scripts/scala-cli)
 BINARIES=()
 
+TARGET_LIST="x86_64-softmmu,aarch64-softmmu"
+
+if [ "$WINDOWS_CROSS" == "true" ]; then
+  :
+elif [ "$(expr substr $(uname -s) 1 5 2>/dev/null)" == "Linux" ]; then
+  TARGET_LIST="$TARGET_LIST,x86_64-linux-user,aarch64-linux-user"
+fi
+
 SHARED_ARGS=(
   --enable-slirp
   --enable-tools
-  --target-list=x86_64-softmmu,aarch64-softmmu
+  --target-list="$TARGET_LIST"
   --disable-bsd-user
   --disable-zstd
   --disable-libusb
-  --disable-bsd-user
   --disable-curl
   --disable-libssh
   --disable-png

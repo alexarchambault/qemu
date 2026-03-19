@@ -174,8 +174,12 @@ jobs:
     - run: tar -zxvf qemu-${{ matrix.OSSHORT }}.tar.gz
     - run: ldd usr/local/bin/qemu-system-aarch64
     - run: ldd usr/local/bin/qemu-system-x86_64
+    - run: ldd usr/local/bin/qemu-aarch64
+    - run: ldd usr/local/bin/qemu-x86_64
     - run: usr/local/bin/qemu-system-aarch64 --help
     - run: usr/local/bin/qemu-system-x86_64 --help
+    - run: usr/local/bin/qemu-aarch64 --help
+    - run: usr/local/bin/qemu-x86_64 --help
     - name: Release
       uses: softprops/action-gh-release@v2
       with:
