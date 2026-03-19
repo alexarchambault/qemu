@@ -112,8 +112,10 @@ final class ProcessBuildNinja(cross: Boolean) {
                 )
               else if ((addSystemExtras || addStaticExtras) && isWin && path0.last.startsWith("libglib-2.0")) {
                 val pcre = path0 / os.up / "libpcre2-8.a"
+                val winpthread = path0 / os.up / "libwinpthread.a"
                 Seq(
-                  pcre
+                  pcre,
+                  winpthread
                 ).map(strPath(_, addDollar = path(1) == '$'))
               }
               else if (addSystemExtras && isWin && path0.last.startsWith("libintl")) {
