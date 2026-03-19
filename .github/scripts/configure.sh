@@ -60,7 +60,7 @@ if [ "$WINDOWS_CROSS" == "true" ]; then
   USE_DOCKER=true
   DOCKER_IMAGE="fedora-image"
 elif [ "$(expr substr $(uname -s) 1 5 2>/dev/null)" == "Linux" ]; then
-  OS_ARGS+=("--enable-kvm" "--enable-virtfs" "--static")
+  OS_ARGS+=("--enable-kvm" "--enable-virtfs" "--static" "--enable-linux-user")
   USE_DOCKER=true
   DOCKER_IMAGE="alpine-image"
 elif [ "$(uname)" == "Darwin" ]; then
