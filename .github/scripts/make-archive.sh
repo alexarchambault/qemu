@@ -30,6 +30,12 @@ fi
 "${COMMAND_PREFIX[@]}" cp -RL build/qemu-bundle "build/$1"
 "${COMMAND_PREFIX[@]}" mv build/build.ninja "build/$1/"
 
+# For native Windows builds, bundle the MinGW64 pthread DLL so the binary is
+# self-contained and doesn't depend on a specific MSYS2 installation at runtime.
+if [[ `uname | grep -E 'CYG*|MSYS*|MING*|UCRT*|CLANG*|GIT*'` ]]; then
+  [ -f /mingw64/bin/libwinpthread-1.dll ] && cp /mingw64/bin/libwinpthread-1.dll "build/$1/qemu/"
+fi
+
 if [ "$USE_DOCKER" == "true" ]; then
   docker run -v "$(pwd):/workdir" -w "/workdir/build/$1" "$DOCKER_IMAGE" tar -zcvf "../../$1.tar.gz" .
   sudo chown -R "$(id -un):$(id -gn)" "$1.tar.gz"
