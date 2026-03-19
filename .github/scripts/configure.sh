@@ -64,7 +64,7 @@ elif [ "$(expr substr $(uname -s) 1 5 2>/dev/null)" == "Linux" ]; then
   USE_DOCKER=true
   DOCKER_IMAGE="alpine-image"
 elif [ "$(uname)" == "Darwin" ]; then
-  OS_ARGS+=("--enable-hvf" "--enable-virtfs")
+  OS_ARGS+=("--enable-hvf" "--enable-virtfs" "--disable-coreaudio")
   MOSTLY_STATIC=true
   BINARIES=(
     qemu-system-aarch64-unsigned
